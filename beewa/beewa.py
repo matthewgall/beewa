@@ -62,7 +62,30 @@ class Beewa:
 						device['name']
 					))
 		except:
-			exit("Unable to login to Hive at this time. Exiting.")	
+			exit("Unable to login to Hive at this time. Exiting.")
+
+	def info(self, device):
+		# Now for a list of devices
+		try:
+			data = requests.get(
+				"{}/nodes/{}".format(self.baseURI, device),
+				headers=self.headers
+			).json()['nodes'][0]
+
+			for value in data:
+				if value in ['id', 'name']:
+					print("{}: {}".format(value, data[value]))
+				elif value in ['attributes']:
+					data = data[value]
+					for value in data:
+						if value in ['state', 'presence', 'brightness']:
+							print("{}: {}".format(
+								value,
+								str(data[value]['displayValue']).lower()
+							))
+		except:
+			exit("Unable to login to Hive at this time. Exiting.")
+
 def main():
 
 	parser = argparse.ArgumentParser()
