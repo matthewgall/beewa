@@ -18,9 +18,9 @@ class Beewa:
 		self.password = password
 
 		# And attempt a login
-		self.login(None)
+		self.login()
 
-	def login(self, device):
+	def login(self, device='', params=''):
 		# Now we attempt a login
 		payload = {
 			"sessions": [{
@@ -47,7 +47,7 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-	def list(self, device):
+	def list(self, device='', params=''):
 		# Now for a list of devices
 		try:
 			data = requests.get(
@@ -64,7 +64,7 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-	def info(self, device):
+	def info(self, device='', params=''):
 		# Now for a list of devices
 		try:
 			data = requests.get(
@@ -86,6 +86,48 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
+	def on(self, device='', params=''):
+		# Now for a list of devices
+		try:
+			payload = {
+				"nodes":[{
+					"attributes": {
+						"state": {"targetValue": "ON"},
+						"brightness": { "targetValue":100 }
+					}
+				}]
+			}
+
+			data = requests.put(
+				"{}/nodes/{}".format(self.baseURI, device),
+				headers=self.headers,
+				json=payload
+			).json()['nodes'][0]
+			print("{} is now on".format(data['name']))
+		except:
+			exit("Unable to login to Hive at this time. Exiting.")
+
+	def off(self, device='', params=''):
+		# Now for a list of devices
+		try:
+			payload = {
+				"nodes":[{
+					"attributes": {
+						"state": {"targetValue": "OFF"},
+						"brightness": { "targetValue":0 }
+					}
+				}]
+			}
+
+			data = requests.put(
+				"{}/nodes/{}".format(self.baseURI, device),
+				headers=self.headers,
+				json=payload
+			).json()['nodes'][0]
+			print("{} is now off".format(data['name']))
+		except:
+			exit("Unable to login to Hive at this time. Exiting.")
+
 def main():
 
 	parser = argparse.ArgumentParser()
@@ -96,7 +138,8 @@ def main():
 
 	# Actions
 	parser.add_argument("action", help="the action to perform")
-	parser.add_argument("device", nargs="?", default='', help='the device to perform the action')
+	parser.add_argument("device", nargs="?", default='', help='device to perform the action')
+	parser.add_argument("params", nargs="?", default='', help='value to set')
 
 	# Verbose mode
 	parser.add_argument("--verbose", "-v", help="increase output verbosity", action="store_true")
@@ -118,7 +161,7 @@ def main():
 	try:
 		method = False
 		method = getattr(hive, args.action)
-		method(args.device)
+		method(args.device, args.params)
 	except AttributeError:
 		exit('{} is not a supported action'.format(args.action))
 	if not method:
