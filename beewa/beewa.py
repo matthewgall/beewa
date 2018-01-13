@@ -78,9 +78,12 @@ class Beewa:
 			exit("Unable to login to Hive at this time. Exiting.")
 
 	def groups(self, params='', args=''):
-		with open(args.groups) as f:
-			data = json.loads(f.read())
-
+		try:
+			with open(args.groups) as f:
+				data = json.loads(f.read())
+		except IOError:
+			exit("Unable to locate {} file".format(args.groups))
+		
 		try:
 			method = False
 			method = getattr(self, "groups_{}".format(params[0]))
