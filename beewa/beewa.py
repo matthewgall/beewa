@@ -20,6 +20,15 @@ class Beewa:
 		# And attempt a login
 		self.login()
 
+	def _classify(self, data):
+		if 'motion.sensor.json' in data['nodeType']:
+			return "motion_sensor"
+		if 'node.class.light.json' in data['nodeType']:
+			return 'bulb'
+		if 'node.class.hub.json' in data['nodeType']:
+			return 'hub'
+		return None
+
 	def login(self, device='', params=''):
 		# Now we attempt a login
 		payload = {
@@ -49,20 +58,28 @@ class Beewa:
 
 	def list(self, device='', params=''):
 		# Now for a list of devices
+		data = requests.get(
+			"{}/nodes".format(self.baseURI),
+			headers=self.headers
+		).json()['nodes']
+		
 		try:
-			data = requests.get(
-				"{}/nodes".format(self.baseURI),
-				headers=self.headers
-			).json()
-			
-			for device in data['nodes']:
+			for device in data:
 				if not device['name'].startswith(("http://", "Fake")):
-					print("{}: {}".format(
-						device['id'],
-						device['name']
-					))
+					if self._classify(device) in ['bulb']:
+						print("{}: {} (presence: {}, state: {})".format(
+							device['id'],
+							device['name'],
+							device['attributes']['presence']['displayValue'],
+							device['attributes']['state']['displayValue']
+						))
+					else:
+						print("{}: {}".format(
+							device['id'],
+							device['name']
+						))
 		except:
-			exit("Unable to login to Hive at this time. Exiting.")
+			exit("We encountered an error listing your devices")
 
 	def info(self, device='', params=''):
 		# Now for a list of devices
@@ -114,7 +131,7 @@ class Beewa:
 				"nodes":[{
 					"attributes": {
 						"state": {"targetValue": "OFF"},
-						"brightness": { "targetValue":0 }
+						"brightness": { "targetValue": 0 }
 					}
 				}]
 			}

@@ -1,5 +1,5 @@
 NAME := beewa
-VERSION := 0.0.4
+VERSION := 0.0.5
 
 .PHONY: build-docs
 build-docs:
