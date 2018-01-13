@@ -175,7 +175,7 @@ def main():
 	parser.add_argument("--password", help="hivehome.com password", default=os.getenv("HIVE_PASSWORD", ''))
 
 	# Actions
-	parser.add_argument("params", nargs="*", help='parameters to pass to the action')
+	parser.add_argument("command", nargs="*", help='command to pass to hive')
 
 	# Verbose mode
 	parser.add_argument("--verbose", "-v", help="increase output verbosity", action="store_true")
@@ -193,15 +193,18 @@ def main():
 	except AssertionError:
 		exit("Missing hivehome.com username or password. Exiting")
 	
+	if len(args.command) < 1:
+		exit(parser.print_help())
+
 	hive = Beewa(args.username, args.password)
 	try:
 		method = False
-		method = getattr(hive, args.params[0])
-		method(args.params[1:])
+		method = getattr(hive, args.command[0])
+		method(args.command[1:])
 	except AttributeError:
-		exit('{} is not a supported action'.format(args.params[0]))
+		exit('{} is not a supported action'.format(args.command[0]))
 	if not method:
-		exit('{} is not a supported action'.format(args.params[0]))
+		exit('{} is not a supported action'.format(args.command[0]))
 
 if __name__ == '__main__':
 	main()
