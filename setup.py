@@ -66,6 +66,7 @@ setup(
     entry_points={
         'console_scripts': [
             'beewa = beewa.cli:main',
+            'hive = beewa.cli:main'
         ],
     },
     install_requires=['requests']
