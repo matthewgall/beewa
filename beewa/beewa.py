@@ -83,7 +83,11 @@ class Beewa:
 				data = json.loads(f.read())
 		except IOError:
 			exit("Unable to locate {} file".format(args.groups))
-		
+
+		# if they haven't submitted a subcommand
+		if len(params) == 0:
+			exit(self.groups_list(args.command[1:], data))
+
 		try:
 			method = False
 			method = getattr(self, "groups_{}".format(params[0]))
