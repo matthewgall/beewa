@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys, argparse, logging
+import os, sys, logging, json
 import requests
 from hive import Hive
 
@@ -13,7 +13,7 @@ class Beewa:
 		# and login
 		self.hive.login()
 
-	def list(self, params=''):
+	def list(self, params='', args=''):
 		# now for a list of devices
 		data = self.hive.list()
 		for device in data:
@@ -31,7 +31,7 @@ class Beewa:
 						device['name']
 					))
 
-	def info(self, params=''):
+	def info(self, params='', args=''):
 		# Now for a list of devices
 		try:
 			data = self.hive.info(params)
@@ -50,7 +50,7 @@ class Beewa:
 		except:
 			exit("Unable to get information about device: {}".format(params[0]))
 
-	def on(self, params=''):
+	def on(self, params='', args=''):
 		# Now for a list of devices
 		try:
 			if self.hive.on(params):
@@ -58,7 +58,7 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-	def off(self, params=''):
+	def off(self, params='', args=''):
 		# Now for a list of devices
 		try:
 			if self.hive.off(params):
@@ -66,7 +66,7 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-	def brightness(self, params=''):
+	def brightness(self, params='', args=''):
 		# Now for a list of devices
 		try:
 			if self.hive.brightness(params):
@@ -77,48 +77,40 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-def main():
+	def groups(self, params='', args=''):
+		with open(args.groups) as f:
+			data = json.loads(f.read())
 
-	parser = argparse.ArgumentParser()
+		try:
+			method = False
+			method = getattr(self, "groups_{}".format(params[0]))
+			method(args.command[1:], data)
+		except AttributeError:
+			exit('groups {} is not a supported action'.format(params[0]))
+		if not method:
+			exit('groups {} is not a supported action'.format(params[0]))
 
-	# hivehome.com credentials
-	parser.add_argument("--username", help="hivehome.com username", default=os.getenv("HIVE_USERNAME", ''))
-	parser.add_argument("--password", help="hivehome.com password", default=os.getenv("HIVE_PASSWORD", ''))
+	def groups_list(self, params='', data=''):
+		# print a list of groups
+		for group in data['groups']:
+			print("===========\n{}\n===========".format(group))
+			for device in data['groups'][group]:
+				print(device)
 
-	# light groups path
-	parser.add_argument("--groups", help="file defining light groups", default='groups.json')
-	
-	# commands
-	parser.add_argument("command", nargs="*", help='command to pass to hive')
+	def groups_on(self, params='', data=''):
+		# now we iterate through the devices and switch them on
+		try:
+			for device in data['groups'][params[1]]:
+				if self.hive.on([device]):
+					print("{} is now on".format(device))
+		except KeyError:
+			exit("Unable to find group: {}".format(params[1]))
 
-	# verbose mode
-	parser.add_argument("--verbose", "-v", help="increase output verbosity", action="store_true")
-	args = parser.parse_args()
-
-	if args.verbose:
-		logging.basicConfig(level=logging.DEBUG)
-	else:
-		logging.basicConfig(level=logging.INFO)
-	log = logging.getLogger(__name__)
-
-	try:
-		assert args.username != ''
-		assert args.password != ''
-	except AssertionError:
-		exit("Missing hivehome.com username or password. Exiting")
-	
-	if len(args.command) == 0:
-		exit(parser.print_help())
-
-	hive = Beewa(args.username, args.password)
-	try:
-		method = False
-		method = getattr(hive, args.command[0])
-		method(args.command[1:])
-	except AttributeError:
-		exit('{} is not a supported action'.format(args.command[0]))
-	if not method:
-		exit('{} is not a supported action'.format(args.command[0]))
-
-if __name__ == '__main__':
-	main()
+	def groups_off(self, params='', data=''):
+		# now we iterate through the devices and switch them on
+		try:
+			for device in data['groups'][params[1]]:
+				if self.hive.off([device]):
+					print("{} is now off".format(device))
+		except KeyError:
+			exit("Unable to find group: {}".format(params[1]))

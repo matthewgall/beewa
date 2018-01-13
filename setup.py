@@ -65,7 +65,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'beewa = beewa.beewa:main',
+            'beewa = beewa.cli:main',
         ],
     },
     install_requires=['requests']
