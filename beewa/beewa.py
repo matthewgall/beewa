@@ -29,7 +29,7 @@ class Beewa:
 			return 'hub'
 		return None
 
-	def login(self, device='', params=''):
+	def login(self, params=''):
 		# Now we attempt a login
 		payload = {
 			"sessions": [{
@@ -56,7 +56,7 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-	def list(self, device='', params=''):
+	def list(self, params=''):
 		# Now for a list of devices
 		data = requests.get(
 			"{}/nodes".format(self.baseURI),
@@ -81,11 +81,11 @@ class Beewa:
 		except:
 			exit("We encountered an error listing your devices")
 
-	def info(self, device='', params=''):
+	def info(self, params=''):
 		# Now for a list of devices
 		try:
 			data = requests.get(
-				"{}/nodes/{}".format(self.baseURI, device),
+				"{}/nodes/{}".format(self.baseURI, params[0]),
 				headers=self.headers
 			).json()['nodes'][0]
 
@@ -103,7 +103,7 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-	def on(self, device='', params=''):
+	def on(self, params=''):
 		# Now for a list of devices
 		try:
 			payload = {
@@ -116,7 +116,7 @@ class Beewa:
 			}
 
 			data = requests.put(
-				"{}/nodes/{}".format(self.baseURI, device),
+				"{}/nodes/{}".format(self.baseURI, params[0]),
 				headers=self.headers,
 				json=payload
 			).json()['nodes'][0]
@@ -124,7 +124,7 @@ class Beewa:
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
-	def off(self, device='', params=''):
+	def off(self, params=''):
 		# Now for a list of devices
 		try:
 			payload = {
@@ -137,11 +137,32 @@ class Beewa:
 			}
 
 			data = requests.put(
-				"{}/nodes/{}".format(self.baseURI, device),
+				"{}/nodes/{}".format(self.baseURI, params[0]),
 				headers=self.headers,
 				json=payload
 			).json()['nodes'][0]
 			print("{} is now off".format(data['name']))
+		except:
+			exit("Unable to login to Hive at this time. Exiting.")
+
+	def brightness(self, params=''):
+		# Now for a list of devices
+		try:
+			payload = {
+				"nodes":[{
+					"attributes": {
+						"state": {"targetValue": "ON"},
+						"brightness": { "targetValue": params[1] }
+					}
+				}]
+			}
+
+			data = requests.put(
+				"{}/nodes/{}".format(self.baseURI, params[0]),
+				headers=self.headers,
+				json=payload
+			).json()['nodes'][0]
+			print("Set brightness of {} to {}%".format(data['name'], params[1]))
 		except:
 			exit("Unable to login to Hive at this time. Exiting.")
 
@@ -154,9 +175,7 @@ def main():
 	parser.add_argument("--password", help="hivehome.com password", default=os.getenv("HIVE_PASSWORD", ''))
 
 	# Actions
-	parser.add_argument("action", help="the action to perform")
-	parser.add_argument("device", nargs="?", default='', help='device to perform the action')
-	parser.add_argument("params", nargs="?", default='', help='value to set')
+	parser.add_argument("params", nargs="*", help='parameters to pass to the action')
 
 	# Verbose mode
 	parser.add_argument("--verbose", "-v", help="increase output verbosity", action="store_true")
@@ -177,12 +196,12 @@ def main():
 	hive = Beewa(args.username, args.password)
 	try:
 		method = False
-		method = getattr(hive, args.action)
-		method(args.device, args.params)
+		method = getattr(hive, args.params[0])
+		method(args.params[1:])
 	except AttributeError:
-		exit('{} is not a supported action'.format(args.action))
+		exit('{} is not a supported action'.format(args.params[0]))
 	if not method:
-		exit('{} is not a supported action'.format(args.action))
+		exit('{} is not a supported action'.format(args.params[0]))
 
 if __name__ == '__main__':
 	main()
