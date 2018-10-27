@@ -30,7 +30,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://codedin.wales/matthew/beewa',
+    url='https://github.com/matthewgall/beewa',
 
     # Author details
     author='Matthew Gall',
