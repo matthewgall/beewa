@@ -18,7 +18,7 @@ This project has been developed by Matthew Gall. This project is hereby released
 
 	MIT License
 
-	Copyright (c) 2017 Matthew Gall
+	Copyright (c) 2017 - 2018 Matthew Gall
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
