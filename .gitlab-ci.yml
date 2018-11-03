@@ -24,16 +24,18 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
 
-run:
+build:
   script:
   - python setup.py bdist_wheel --universal
   # run the command here
+  stage: build
   artifacts:
     paths:
     - dist/*.whl
 
 publish:
+  stage: deploy
   script:
   - twine upload -u $TWINE_USERNAME -p $TWINE_PASSWORD dist/*.whl
   dependencies:
-    - run
+    - build
