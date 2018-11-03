@@ -40,7 +40,10 @@ def main():
 	try:
 		method = False
 		method = getattr(hive, args.command[0])
-		method(args.command[1:], args)
+		try:
+			method(args.command[1:], args)
+		except SystemError as e:
+			exit(e.message)
 	except AttributeError:
 		exit('{} is not a supported action'.format(args.command[0]))
 	if not method:

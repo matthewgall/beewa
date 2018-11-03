@@ -18,13 +18,16 @@ class Hive:
 		self.password = password
 
 	def _classify(self, data):
-		if 'motion.sensor.json' in data['nodeType']:
-			return "motion_sensor"
-		if 'node.class.light.json' in data['nodeType']:
-			return 'bulb'
-		if 'node.class.hub.json' in data['nodeType']:
-			return 'hub'
-		return None
+		try:
+			if 'motion.sensor.json' in data['nodeType']:
+				return "motion_sensor"
+			if 'node.class.light.json' in data['nodeType']:
+				return 'bulb'
+			if 'node.class.hub.json' in data['nodeType']:
+				return 'hub'
+			return None
+		except:
+			return None
 
 	def login(self, params=''):
 		# Now we attempt a login
