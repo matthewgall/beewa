@@ -35,3 +35,5 @@ run:
 publish:
   script:
   - twine upload -u $TWINE_USERNAME -p $TWINE_PASSWORD dist/*.whl
+  dependencies:
+  - run
