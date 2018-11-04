@@ -32,10 +32,13 @@ build:
   artifacts:
     paths:
     - dist/*.whl
-
+  
 publish:
   stage: deploy
   script:
   - twine upload -u $TWINE_USERNAME -p $TWINE_PASSWORD dist/*.whl
   dependencies:
     - build
+  only:
+    changes:
+      - Makefile
